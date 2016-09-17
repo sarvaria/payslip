@@ -1,0 +1,329 @@
+<!--
+Copyright (C) 2016 Andras Sarvari <andras.sarvari@sarvaria.net>
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animations.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animatable.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-shared-element-animatable-behavior.html">
+<link rel="import" href="../../bower_components/paper-styles/typography.html">
+
+<link rel="import" href="../app-titlebar/app-titlebar.html">
+<link rel="import" href="../app-login/app-login.html">
+<link rel="import" href="../app-settings/app-settings.html">
+
+<!--
+Description:
+
+Main module of the application.
+-->
+
+<dom-module id="app-main">
+
+    <!-- Style of the component -->
+
+    <style>    
+        .main {
+            position:           absolute;
+            left:               0px;
+            top:                0px;
+            max-width:          100%;
+            width:              100%;
+            height:             100%;
+        }
+                
+        .content {
+            padding:            8px 16px 8px 16px;
+            height:             100%;
+        }
+    </style>
+
+    <!-- Content of the component -->
+
+    <template>
+
+        <!-- Main -->
+
+        <div class="main vertical" style$="{{_setStyle(mainsize)}}">
+            <paper-drawer-panel id="contentpanel" force-narrow disable-swipe$="{{_isLoginPage(page)}}">
+                <div main>
+    
+                    <!-- Titlebar -->
+        
+                    <app-titlebar apptitle="Payslip" menu="{{menu}}" wait="{{wait}}" back="{{back}}" hidedrawericon="{{_isLoginPage(page)}}" on-showdrawer="_showDrawer" on-back="_back" on-menupoint-selected="_menupointSelected"></app-titlebar>
+        
+                    <!-- Screen content -->
+            
+                    <div class="content vertical">
+                        <neon-animated-pages selected="{{_getPage(page)}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+                            <div id="login">Login</div>
+                        </neon-animated-pages>
+                    </div>
+                </div>
+
+                <!-- Menu -->
+                
+                <div drawer>
+                    <app-menu on-selected="_drawerMenupointSelected"></app-menu>
+                </div>
+            </paper-drawer-panel>
+        </div>
+    </template>
+    
+    <!-- Script for the component -->
+
+    <script>
+        Polymer({
+            is:                     'app-main',
+
+            /**
+             * Attributes.
+             */
+
+            properties: {
+                width:           { type: Number, value: 0, notify: true, readyOnly: false },
+                height:          { type: Number, value: 0, notify: true, readyOnly: false },
+                orientation:     { type: String, notify: true, readyOnly: false }
+            },
+
+            /**
+             * Observers.
+             */
+
+            observers: [
+                '_resize(width, height, orientation)',
+            ],
+            
+            /**
+             * Polymer READY event.
+             */
+            
+            ready: function() {
+
+                // Reference to the current object
+
+                var self = this;
+                
+                // Initializing
+
+                self.wait = false;                
+                self.back = false;
+                self.page = 'login';
+            },
+            
+            /**
+             * Resize event that occures when the browser has been resized.
+             *
+             * @param   {Number}    width       width of the browser
+             * @param   {Number}    height      height of the browser
+             * @param   {String}    orientation orientation of the browser
+             */
+
+            _resize: function(width, height, orientation) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Setting the agenda position and dimensions
+
+                self.mainsize = {
+                    width:          width,
+                    height:         height,
+                    orientation:    orientation
+                };
+            },
+
+            /**
+             * Sets the style of the main area.
+             *
+             * @param   {Object}    mainsize    size information of the main
+             *                                  area
+             * @return  {String}    style       style of the main area
+             */
+
+            _setStyle: function(mainsize) {
+                return sprintf(
+                    'width: %dpx; height: %dpx',
+                    mainsize.width,
+                    mainsize.height
+                );
+            },
+
+            /**
+             * Does the active page the login page?
+             *
+             * @param   {String}    page        name of the current page
+             * @return  {Boolean}   loginpage   does the active page the login
+             *                                  page
+             */
+            
+            _isLoginPage: function(page) {
+                return page == 'login';
+            },
+
+            /**
+             * Gets the page number based on the specified page number.
+             *
+             * @param   {String}    page        name of the page
+             * @return  {Number}    pagenr      page number of the page
+             */
+            
+            _getPage: function(page) {
+                return 0;    
+            },
+            
+            _showMenu: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.$.contentpanel.togglePanel();
+            },
+            
+            _nextPage: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.entryAnimation = 'slide-from-right-animation';
+                self.exitAnimation = 'slide-left-animation';
+                self.selectedPage += 1;
+            },
+            
+            _previousPage: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.entryAnimation = 'slide-from-left-animation';
+                self.exitAnimation = 'slide-right-animation';
+                self.selectedPage -= 1;
+            },
+
+            _showLogin: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.menu = [];
+                self.entryAnimation = 'fade-in-animation';
+                self.exitAnimation = 'fade-out-animation';
+                self.selectedPage = 0;
+            },
+            
+            _showProfile: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.entryAnimation = 'fade-in-animation';
+                self.exitAnimation = 'fade-out-animation';
+                self.selectedPage = 3;
+            },
+            
+            _showCalendar: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.menu = [
+                    { id: 'profile', name: 'Profile' },
+                    { id: 'logout', name: 'Logout' }
+                ];
+
+                self.entryAnimation = 'fade-in-animation';
+                self.exitAnimation = 'fade-out-animation';
+                self.selectedPage = 1;
+            },
+            
+            _showSettings: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.menu = [
+                    { id: 'profile', name: 'Profile' },
+                    { id: 'logout', name: 'Logout' }
+                ];
+
+                self.entryAnimation = 'fade-in-animation';
+                self.exitAnimation = 'fade-out-animation';
+                self.selectedPage = 4;
+            },
+          
+            _showExport: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.menu = [
+                    { id: 'profile', name: 'Profile' },
+                    { id: 'logout', name: 'Logout' }
+                ];
+
+                self.entryAnimation = 'fade-in-animation';
+                self.exitAnimation = 'fade-out-animation';
+                self.selectedPage = 5;
+            },
+            
+            _back: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                self.back = false;
+
+                if (self.previousPage) {
+                    self.entryAnimation = 'fade-in-animation';
+                    self.exitAnimation = 'fade-out-animation';
+                    self.selectedPage = self.previousPage;
+                    self.previousPage = undefined;
+                } else {
+                    self._previousPage();
+                }
+            },
+            
+            _menupointSelected: function(event) {
+
+                // Reference to the current object
+
+                var self = this;
+                
+                var mp = event.detail;
+                
+                if (mp == 'profile') {
+                    self.previousPage = self.selectedPage;
+                    self.back = true;
+                    self._showProfile();
+                } else if (mp == 'logout') {
+                    self._showLogin();
+                }
+            }
+        });
+    </script>
+</dom-module>
