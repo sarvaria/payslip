@@ -37,8 +37,17 @@ Titlebar of the application.
         paper-toolbar.toolbar {
             --paper-toolbar-background:     #17B489;
             --paper-toolbar-title: {
-                font-weight:                bold;
+                font-weight:                plain;
+                color:                      #FFFFFF;
             };
+        }
+        
+        paper-spinner.white {
+            --paper-spinner-layer-1-color:  #FFFFFF;
+            --paper-spinner-layer-2-color:  #FFFFFF;
+            --paper-spinner-layer-3-color:  #FFFFFF;
+            --paper-spinner-layer-4-color:  #FFFFFF;
+            --paper-spinner-stroke-width:   2px;
         }
         
         .closertitle {
@@ -91,7 +100,7 @@ Titlebar of the application.
                     <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
                     <paper-menu class="dropdown-content menu">
                         <template is="dom-repeat" items="{{menu}}" as="m">
-                            <paper-item data-id$="{{_getMenupointID(m.id)}}" class="menuitem" on-tap="_menupointSelected">{{m.name}}</paper-item>
+                            <paper-item data-id$="{{_getMPID(m.id)}}" class="menuitem" on-tap="_menupointSelected">{{m.name}}</paper-item>
                         </template>    
                     </paper-menu>
                 </paper-menu-button>
@@ -118,6 +127,21 @@ Titlebar of the application.
             },
 
             /**
+             * Polymer READY event.
+             */
+            
+            ready: function() {
+
+                // Reference to the current object
+
+                var self = this;
+                
+                // Initializing
+                
+                self.MENUID_PREFIX = 'menu_';
+            },
+
+            /**
              * Has any menu defined for the titlebar?
              *
              * @param   {Array}     menu        defined menu
@@ -126,21 +150,6 @@ Titlebar of the application.
 
             _hasMenu: function(menu) {
                 return menu && menu.length > 0;
-            },
-
-            /**
-             * Fires the showdrawer event when the user taps the drawer icon.
-             */
-            
-            _showDrawer: function() {
-             
-                // Reference to the current object
-
-                var self = this;
-
-                // Firing the showdrawer event
-                
-                self.fire('showdrawer');
             },
 
             /**
@@ -166,25 +175,70 @@ Titlebar of the application.
             _hideDrawerIcon: function(back, hidedrawericon) {
                 return back || hidedrawericon;
             },
+
+            /**
+             * Fires the "showdrawer" event when the user taps the drawer icon.
+             */
             
+            _showDrawer: function() {
+             
+                // Reference to the current object
+
+                var self = this;
+
+                // Firing the "showdrawer" event
+                
+                self.fire('showdrawer');
+            },
+            
+            /**
+             * Fires the "back" event when the user taps the drawer icon.
+             */
+             
             _back: function() {
              
                 // Reference to the current object
 
                 var self = this;
 
+                // Firing the "back" event
+                
                 self.fire('back');
             },
 
-            _getMenupointID: function(id) {
-                return 'menu_' + id;    
+            /**
+             * Gets that the ID of the menu.
+             *
+             * @param   {String}    id              ID of the menu
+             * @return  {String}    nodeid          ID of the node
+             */
+             
+            _getMPID: function(id) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Returns the node ID of the menu
+                
+                return self.MENUID_PREFIX + id;    
             },
             
+            /**
+             * Event that fires when the user selects a menupoint from the menu.
+             * It fires the "menupoint-selected" event with the selected
+             * menupoint ID.
+             *
+             * @param   {Object}    event           event object
+             */
+             
             _menupointSelected: function(event) {
                 
                 // Reference to the current object
 
                 var self = this;
+                
+                // Getting the selected menupoint node
                 
                 var node = event.target;
                 
@@ -192,7 +246,13 @@ Titlebar of the application.
                     node = node.parentElement;
                 }
                 
-                self.fire('menupoint-selected', node.getAttribute('data-id').substring(5));
+                // Firing the "menupoint-selected" event with the ID of the
+                // menupoint.
+                
+                self.fire(
+                    'menupoint-selected',
+                    node.getAttribute('data-id').substring(self.MENUID_PREFIX.length)
+                );
             }
         });
     </script>

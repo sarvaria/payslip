@@ -1,0 +1,105 @@
+<!--
+Copyright (C) 2016 Andras Sarvari <andras.sarvari@sarvaria.net>
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+-->
+
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+
+<link rel="import" href="../app-copyright/app-copyright.html">
+
+<!--
+Description:
+
+Login page.
+-->
+
+<dom-module id="app-login">
+
+    <!-- Style of the component -->
+
+    <style>   
+        .content {
+            height:             100%;
+            padding:            8px 8px 8px 8px;
+        }
+
+        .login {
+            padding:            0px 8px 0px 8px;
+        }
+        
+        paper-button {
+            background:         #17B489;
+            color:              #FFFFFF;
+        }
+
+        .loginbutton {
+            padding:            16px 0px 0px 0px;
+        }
+    </style>
+
+    <!-- Content of the component -->
+
+    <template>
+        <div class="content vertical">
+            <div class="login">
+                <paper-input id="logonid" label="Logon ID:" disabled$="{{wait}}" maxlength="24" value="{{logonid}}" error-message="{{logonid_error}}"></paper-input>
+                <paper-input id="password" label="Password:" type="password" disabled$="{{wait}}" maxlength="64" value="{{password}}"></paper-input>
+                
+                <!-- Login button -->
+                
+                <div class="loginbutton horizontal center-justified">
+                    <paper-button raised on-tap="_login">Login</paper-button>
+                </div>
+            </div>
+
+            <!-- Copyright -->
+            
+            <div class="flex"></div>
+            <app-copyright></app-copyright>
+        </div>
+    </template>
+    
+    <!-- Script for the component -->
+
+    <script>
+        Polymer({
+            is:                     'app-login',
+            
+            /**
+             * Attributes.
+             */
+
+            properties: {
+                wait:            { type: Boolean, notify: true, readyOnly: false }
+            },
+            
+            /**
+             * Event that fires when the user taps the login button.
+             */            
+
+            _login: function() {
+                
+                // Reference to the current object
+
+                var self = this;
+                
+                // Login process finished
+                
+                self.fire('login');
+            }
+        });
+    </script>
+</dom-module>

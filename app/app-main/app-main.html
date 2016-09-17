@@ -35,45 +35,30 @@ Main module of the application.
 
 <dom-module id="app-main">
 
-    <!-- Style of the component -->
-
-    <style>    
-        .main {
-            position:           absolute;
-            left:               0px;
-            top:                0px;
-            max-width:          100%;
-            width:              100%;
-            height:             100%;
-        }
-                
-        .content {
-            padding:            8px 16px 8px 16px;
-            height:             100%;
-        }
-    </style>
-
     <!-- Content of the component -->
 
     <template>
 
         <!-- Main -->
 
-        <div class="main vertical" style$="{{_setStyle(mainsize)}}">
-            <paper-drawer-panel id="contentpanel" force-narrow disable-swipe$="{{_isLoginPage(page)}}">
+        <div style$="{{_setStyle(mainsize)}}">
+            <paper-drawer-panel id="drawerpanel" force-narrow disable-swipe$="{{_isLoginPage(page)}}">
                 <div main>
     
                     <!-- Titlebar -->
         
-                    <app-titlebar apptitle="Payslip" menu="{{menu}}" wait="{{wait}}" back="{{back}}" hidedrawericon="{{_isLoginPage(page)}}" on-showdrawer="_showDrawer" on-back="_back" on-menupoint-selected="_menupointSelected"></app-titlebar>
+                    <app-titlebar apptitle="Payslip" menu="{{menu}}" wait="{{wait}}" back="{{back}}" hidedrawericon="{{_isLoginPage(page)}}" on-showdrawer="_showDrawer" on-back="_showPreviousPage" on-menupoint-selected="_menupointSelected"></app-titlebar>
         
                     <!-- Screen content -->
             
-                    <div class="content vertical">
-                        <neon-animated-pages selected="{{_getPage(page)}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-                            <div id="login">Login</div>
-                        </neon-animated-pages>
-                    </div>
+                    <neon-animated-pages selected="{{_getPage(page)}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+                        <div id="pagecontainer" style$="{{_setContentStyle(mainsize)}}">
+                            
+                            <!-- Pages -->
+                            
+                            <app-login id="login" class="page" wait="{{wait}}"></app-login>
+                        </div>
+                    </neon-animated-pages>
                 </div>
 
                 <!-- Menu -->
@@ -123,6 +108,7 @@ Main module of the application.
 
                 self.wait = false;                
                 self.back = false;
+                self.previousPage = [ { name: 'login', menu: [] } ];
                 self.page = 'login';
             },
             
@@ -145,7 +131,11 @@ Main module of the application.
                 self.mainsize = {
                     width:          width,
                     height:         height,
-                    orientation:    orientation
+                    orientation:    orientation,
+                    content: {
+                        width:          width,
+                        height:         height - 82
+                    }
                 };
             },
 
@@ -166,6 +156,21 @@ Main module of the application.
             },
 
             /**
+             * Sets the style of the content area.
+             *
+             * @param   {Object}    mainsize    size information of the main
+             *                                  area
+             * @return  {String}    style       style of the content area
+             */
+             
+            _setContentStyle: function(mainsize) {
+                return sprintf(
+                    'height: %dpx',
+                    mainsize.content.height
+                );
+            },
+            
+            /**
              * Does the active page the login page?
              *
              * @param   {String}    page        name of the current page
@@ -178,135 +183,124 @@ Main module of the application.
             },
 
             /**
-             * Gets the page number based on the specified page number.
+             * Gets the page number based on the specified page name.
              *
              * @param   {String}    page        name of the page
              * @return  {Number}    pagenr      page number of the page
              */
             
             _getPage: function(page) {
-                return 0;    
-            },
-            
-            _showMenu: function() {
 
                 // Reference to the current object
 
                 var self = this;
 
-                self.$.contentpanel.togglePanel();
-            },
-            
-            _nextPage: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.entryAnimation = 'slide-from-right-animation';
-                self.exitAnimation = 'slide-left-animation';
-                self.selectedPage += 1;
-            },
-            
-            _previousPage: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.entryAnimation = 'slide-from-left-animation';
-                self.exitAnimation = 'slide-right-animation';
-                self.selectedPage -= 1;
-            },
-
-            _showLogin: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.menu = [];
-                self.entryAnimation = 'fade-in-animation';
-                self.exitAnimation = 'fade-out-animation';
-                self.selectedPage = 0;
-            },
-            
-            _showProfile: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.entryAnimation = 'fade-in-animation';
-                self.exitAnimation = 'fade-out-animation';
-                self.selectedPage = 3;
-            },
-            
-            _showCalendar: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.menu = [
-                    { id: 'profile', name: 'Profile' },
-                    { id: 'logout', name: 'Logout' }
-                ];
-
-                self.entryAnimation = 'fade-in-animation';
-                self.exitAnimation = 'fade-out-animation';
-                self.selectedPage = 1;
-            },
-            
-            _showSettings: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.menu = [
-                    { id: 'profile', name: 'Profile' },
-                    { id: 'logout', name: 'Logout' }
-                ];
-
-                self.entryAnimation = 'fade-in-animation';
-                self.exitAnimation = 'fade-out-animation';
-                self.selectedPage = 4;
-            },
-          
-            _showExport: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.menu = [
-                    { id: 'profile', name: 'Profile' },
-                    { id: 'logout', name: 'Logout' }
-                ];
-
-                self.entryAnimation = 'fade-in-animation';
-                self.exitAnimation = 'fade-out-animation';
-                self.selectedPage = 5;
-            },
-            
-            _back: function() {
-
-                // Reference to the current object
-
-                var self = this;
-
-                self.back = false;
-
-                if (self.previousPage) {
-                    self.entryAnimation = 'fade-in-animation';
-                    self.exitAnimation = 'fade-out-animation';
-                    self.selectedPage = self.previousPage;
-                    self.previousPage = undefined;
-                } else {
-                    self._previousPage();
+                // Getting the defined pages
+                
+                var pages = self.$.pagecontainer.querySelectorAll('.page');
+                
+                // Searching index for the requested page
+                
+                for (var i = 0; i < pages.length; i++) {
+                    if (pages[i].getAttribute('id') == page) {
+                        return i;
+                        break;
+                    }
                 }
+                
+                // Page not found
+                
+                return -1;
             },
+            
+            /**
+             * Shows the drawer panel.
+             */
+             
+            _showDrawer: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Opening the drawer panel
+                
+                self.$.drawerpanel.togglePanel();
+            },
+
+            /**
+             * Shows the specified page with the specified menu. If the menu
+             * does not specified it will be untouched.
+             *
+             * @param   {String}    page        name of the page
+             * @param   {Array}     menu        menu that holds the menupoints
+             */
+            
+            _showPage: function(page, menu) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Setting the menu
+                
+                if (menu) {
+                    self.menu = menu;
+                }
+                
+                // Showing the page
+                
+                self.entryAnimation = 'fade-in-animation';
+                self.exitAnimation = 'fade-out-animation';
+                self.page = page;
+            },
+
+            /**
+             * Shows the previous page.
+             */
+             
+            _showPreviousPage: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Getting the previous page
+                
+                var page = self.previousPage[self.previousPage.length - 1];
+                self.previousPage.pop();
+                
+                // Showing the previous page
+                
+                self._showPage(page.name, page.menu);
+            },
+            
+            /**
+             * Shows the specified page with the specified menu. If the menu
+             * does not specified it will be untouched.
+             *
+             * @param   {String}    page        name of the page
+             * @param   {Array}     menu        menu that holds the menupoints
+             */
+             
+            _setBack: function(page, menu) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Backuping the current page and showing the specified one
+                
+                self.back = true;
+                self.previousPage.push( { name: self.page, menu: self.menu });
+                self._showPage(page, menu);
+            },
+
+            /**
+             * Event that fires when the user selects a menupoint from the menu.
+             *
+             * @param   {Object}    event           event object
+             */
             
             _menupointSelected: function(event) {
 
@@ -314,14 +308,22 @@ Main module of the application.
 
                 var self = this;
                 
+                // Getting the selected menupoint
+                
                 var mp = event.detail;
                 
+                // Showing profile page
+                
                 if (mp == 'profile') {
-                    self.previousPage = self.selectedPage;
                     self.back = true;
-                    self._showProfile();
+                    self._showPage('profile', [
+                        { id: 'logout', name: 'Logout' }
+                    ]);
+                    
+                // Showing login page
+                
                 } else if (mp == 'logout') {
-                    self._showLogin();
+                    self._showPage('login', []);
                 }
             }
         });
