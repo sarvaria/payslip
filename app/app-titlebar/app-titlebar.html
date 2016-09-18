@@ -98,7 +98,7 @@ Titlebar of the application.
             <template is="dom-if" if="{{_hasMenu(menu)}}">
                 <paper-menu-button horizontal-align="right">
                     <paper-icon-button icon="more-vert" class="dropdown-trigger"></paper-icon-button>
-                    <paper-menu class="dropdown-content menu">
+                    <paper-menu class="dropdown-content menu" on-iron-select="_mpSelected" selected="{{selectedMenupoint}}">
                         <template is="dom-repeat" items="{{menu}}" as="m">
                             <paper-item data-id$="{{_getMPID(m.id)}}" class="menuitem" on-tap="_menupointSelected">{{m.name}}</paper-item>
                         </template>    
@@ -253,6 +253,22 @@ Titlebar of the application.
                     'menupoint-selected',
                     node.getAttribute('data-id').substring(self.MENUID_PREFIX.length)
                 );
+            },
+            
+            /**
+             * Event that fires after the user selects a menupoint from the
+             * menu.
+             */
+             
+            _mpSelected: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Reseting menupoint selection
+                
+                self.selectedMenupoint = -1;
             }
         });
     </script>

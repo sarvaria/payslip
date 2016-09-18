@@ -24,7 +24,10 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 <link rel="import" href="../../bower_components/paper-styles/typography.html">
 
 <link rel="import" href="../app-titlebar/app-titlebar.html">
+<link rel="import" href="../app-menu/app-menu.html">
 <link rel="import" href="../app-login/app-login.html">
+<link rel="import" href="../app-payslip/app-payslip.html">
+<link rel="import" href="../app-profile/app-profile.html">
 <link rel="import" href="../app-settings/app-settings.html">
 
 <!--
@@ -51,20 +54,20 @@ Main module of the application.
         
                     <!-- Screen content -->
             
-                    <neon-animated-pages selected="{{_getPage(page)}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
-                        <div id="pagecontainer" style$="{{_setContentStyle(mainsize)}}">
-                            
-                            <!-- Pages -->
-                            
-                            <app-login id="login" class="page" wait="{{wait}}"></app-login>
-                        </div>
+                    <neon-animated-pages id="pagecontainer" style$="{{_setContentStyle(mainsize)}}" selected="{{_getPage(page)}}" entry-animation="[[entryAnimation]]" exit-animation="[[exitAnimation]]">
+
+                        <!-- Pages -->
+                        
+                        <app-login id="login" class="page" wait="{{wait}}" height="{{mainsize.content.height}}" on-login="_login"></app-login>
+                        <app-payslip id="payslip" class="page" wait="{{wait}}" height="{{mainsize.content.height}}"></app-payslip>
+                        <app-profile id="profile" class="page" wait="{{wait}}" height="{{mainsize.content.height}}"></app-profile>
                     </neon-animated-pages>
                 </div>
 
                 <!-- Menu -->
                 
                 <div drawer>
-                    <app-menu on-selected="_drawerMenupointSelected"></app-menu>
+                    <app-menu selected="{{menupoint}}" on-selected="_drawerMenupointSelected"></app-menu>
                 </div>
             </paper-drawer-panel>
         </div>
@@ -134,7 +137,7 @@ Main module of the application.
                     orientation:    orientation,
                     content: {
                         width:          width,
-                        height:         height - 82
+                        height:         height - 66
                     }
                 };
             },
@@ -270,6 +273,12 @@ Main module of the application.
                 var page = self.previousPage[self.previousPage.length - 1];
                 self.previousPage.pop();
                 
+                // Setting the back icon
+                
+                if (self.previousPage.length == 1) {
+                    self.back = false;
+                }
+                
                 // Showing the previous page
                 
                 self._showPage(page.name, page.menu);
@@ -315,15 +324,69 @@ Main module of the application.
                 // Showing profile page
                 
                 if (mp == 'profile') {
-                    self.back = true;
-                    self._showPage('profile', [
+                    self._setBack('profile', [
                         { id: 'logout', name: 'Logout' }
                     ]);
-                    
+
                 // Showing login page
                 
                 } else if (mp == 'logout') {
                     self._showPage('login', []);
+                }
+            },
+            
+            /**
+             * Event that fires when the login process finished successfully.
+             * Shows the application main page.
+             */
+            
+            _login: function() {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Preparing and showing the main page
+                
+                self.back = false;
+                self.previousPage = [ { name: 'login', menu: [] } ];
+                self.menupoint = 'payslip';
+                self._showPage('payslip', [
+                    { id: 'profile', name: 'Profile' },
+                    { id: 'logout', name: 'Logout' }
+                ]);
+            },
+
+            /**
+             * Event that fires when the user selects a menupoint from the
+             * drawer menu.
+             *
+             * @param   {Object}    event           event object
+             */
+            
+            _drawerMenupointSelected: function(event) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Closing the drawer
+                
+                self.$.drawerpanel.closeDrawer();
+                
+                // Getting the selected menupoint
+                
+                self.menupoint = event.detail;
+
+                // Showing payslip page
+                
+                if (self.menupoint == 'payslip') {
+                    self._showPage('payslip');
+
+                // Showing settings page
+
+                } else if (self.menupoint == 'settings') {
+                    self._showPage('settings');
                 }
             }
         });

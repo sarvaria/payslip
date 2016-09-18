@@ -15,6 +15,8 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 -->
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-ripple/paper-ripple.html">
+<link rel="import" href="../../bower_components/paper-toast/paper-toast.html">
 
 <!--
 Description:
@@ -27,19 +29,188 @@ Payslips.
     <!-- Style of the component -->
 
     <style>
+        .content {
+            padding:            8px 8px 16px 8px;
+            overflow:           auto;
+        }
+
+        .year {
+            font-size:          22px;
+            font-weight:        bold;
+            color:              #000000;
+            padding:            8px 0px 8px 16px;
+        }
+        
+        .payslip {
+            display:            inline-block;
+            padding:            4px;
+            border-radius:      4px;
+            font-size:          11px;
+        }
+        
+        .selectedpayslip {
+            background:         #17B489;
+        }
+        
+        .emptyspace {
+            height:             20px;
+        }
     </style>
 
     <!-- Content of the component -->
 
     <template>
-        Payslip
+        <div class="content" style$="{{_setStyle(height)}}">
+            <template is="dom-repeat" items="{{year}}" as="y">
+                <div class="year">{{y}}</div>
+                <div class="wrap">
+                    <template is="dom-repeat" items="{{payslip}}" as="p" filter="{{_filterYear(y)}}">
+                        <div data-id$="{{_getID(p)}}" class$="{{_setClass(p, selected)}}" on-tap="_pasylipSelected">
+                            <paper-ripple></paper-ripple>
+                            <img src="images/payslip.png" width="64" height="64">
+                            <div class="horizontal center-justified">{{_getMonth(p)}}</div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            <div class="emptyspace"></div>
+            <paper-toast id="finishmessage" text="Pasylip downloading finished"></paper-toast>
+        </div>
     </template>
     
     <!-- Script for the component -->
 
     <script>
         Polymer({
-            is:                     'app-payslip'
+            is:                     'app-payslip',
+            
+            /**
+             * Attributes.
+             */
+
+            properties: {
+                height:          { type: Number, value: 0, notify: true, readyOnly: false },
+                wait:            { type: Boolean, notify: true, readyOnly: false }
+            },
+            
+            /**
+             * Polymer READY event.
+             */
+            
+            ready: function() {
+
+                // Reference to the current object
+
+                var self = this;
+                
+                // Initializing
+                
+                self.selected = 0;
+                self.month = [
+                    'January',
+                    'February',
+                    'March',
+                    'April',
+                    'May',
+                    'June',
+                    'July',
+                    'August',
+                    'September',
+                    'Octber',
+                    'November',
+                    'December'
+                ];
+
+                self.payslip = [ 
+                    {id: 20161, year: 2016, month: 1, emploeenr: '1' }, {id: 20162, year: 2016, month: 2, emploeenr: '1' },
+                    {id: 20163, year: 2016, month: 3, emploeenr: '1' }, {id: 20164, year: 2016, month: 4, emploeenr: '1' },
+                    {id: 20165, year: 2016, month: 5, emploeenr: '1' }, {id: 20166, year: 2016, month: 6, emploeenr: '1' },
+                    {id: 20167, year: 2016, month: 7, emploeenr: '1' }, {id: 20168, year: 2016, month: 8, emploeenr: '1' },
+                    {id: 20169, year: 2016, month: 9, emploeenr: '1' }, {id: 201610, year: 2016, month: 10, emploeenr: '1' },
+                    {id: 201611, year: 2016, month: 11, emploeenr: '1' }, {id: 201612, year: 2016, month: 12, emploeenr: '1' },
+                    {id: 20171, year: 2017, month: 1, emploeenr: '1' }, {id: 20172, year: 2017, month: 2, emploeenr: '1' },
+                ];
+
+                self.year = [];
+                
+                for (var i = 0; i < self.payslip.length; i++) {
+                    var found = false;
+                    
+                    for (var j = 0; j < self.year.length; j++) {
+                        if (self.year[j] == self.payslip[i].year) {
+                            found = true;
+                            break;
+                        }
+                    } 
+                    
+                    if (!found) {
+                        self.push('year', self.payslip[i].year);
+                    }
+                }
+            },
+            
+            /**
+             * Sets the style of the page.
+             *
+             * @param   {Number}    height      height of the page
+             * @return  {String}    style       style of the page
+             */
+
+            _setStyle: function(height) {
+                return sprintf('height: %dpx', height);
+            },
+            
+            _getID: function(payslip) {
+                return 'P' + payslip.id;
+            },
+            
+            _getMonth: function(payslip) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                return self.month[payslip.month - 1];
+            },
+            
+            _setClass: function(payslip, selected) {
+                return 'payslip vertical' + (payslip.id == selected ? ' selectedpayslip' : '');
+            },
+            
+            _filterYear: function(year) {
+                return function(item) {
+                    return item.year == year;  
+                };
+            },
+            
+            _pasylipSelected: function(event) {
+
+                // Reference to the current object
+
+                var self = this;
+
+                // Getting the selected menupoint node
+                
+                var node = event.target;
+                
+                while (!node.getAttribute('data-id')) {
+                    node = node.parentElement;
+                }
+
+                self.selected = node.getAttribute('data-id').substring(1);
+                var payslip;
+                
+                for (var i = 0; i < self.payslip.length; i++) {
+                    if (self.payslip[i].id == self.selected) {
+                        payslip = self.payslip[i];
+                        break;
+                    }
+                }
+                
+                // Downloaing the payslip
+                
+                self.$.finishmessage.open();
+            }
         });
     </script>
 </dom-module>

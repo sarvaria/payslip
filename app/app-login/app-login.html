@@ -32,12 +32,21 @@ Login page.
 
     <style>   
         .content {
-            height:             100%;
-            padding:            8px 8px 8px 8px;
+            position:           relative;
         }
 
+        .layer {
+            position:           absolute;
+            width:              100%;
+            height:             100%;
+        }
+        
+        .copyright {
+            padding:            0px 0px 8px 0px;
+        }
+        
         .login {
-            padding:            0px 8px 0px 8px;
+            padding:            0px 80px 0px 80px;
         }
         
         paper-button {
@@ -53,22 +62,29 @@ Login page.
     <!-- Content of the component -->
 
     <template>
-        <div class="content vertical">
-            <div class="login">
-                <paper-input id="logonid" label="Logon ID:" disabled$="{{wait}}" maxlength="24" value="{{logonid}}" error-message="{{logonid_error}}"></paper-input>
-                <paper-input id="password" label="Password:" type="password" disabled$="{{wait}}" maxlength="64" value="{{password}}"></paper-input>
-                
-                <!-- Login button -->
-                
-                <div class="loginbutton horizontal center-justified">
-                    <paper-button raised on-tap="_login">Login</paper-button>
-                </div>
-            </div>
+        <div class="content" style$="{{_setStyle(height)}}">
 
             <!-- Copyright -->
             
-            <div class="flex"></div>
-            <app-copyright></app-copyright>
+            <div class="layer vertical center">
+                <div class="flex"></div>
+                <app-copyright class="copyright"></app-copyright>
+            </div>
+
+            <!-- Login -->
+
+            <div class="layer vertical center-justified">
+                <div class="login">
+                    <paper-input id="logonid" label="Logon ID:" disabled$="{{wait}}" maxlength="24" value="{{logonid}}" error-message="{{logonid_error}}"></paper-input>
+                    <paper-input id="password" label="Password:" type="password" disabled$="{{wait}}" maxlength="64" value="{{password}}"></paper-input>
+                    
+                    <!-- Login button -->
+                    
+                    <div class="loginbutton horizontal center-justified">
+                        <paper-button raised on-tap="_login">Login</paper-button>
+                    </div>
+                </div>
+            </div>
         </div>
     </template>
     
@@ -83,7 +99,19 @@ Login page.
              */
 
             properties: {
+                height:          { type: Number, value: 0, notify: true, readyOnly: false },
                 wait:            { type: Boolean, notify: true, readyOnly: false }
+            },
+            
+            /**
+             * Sets the style of the page.
+             *
+             * @param   {Number}    height      height of the page
+             * @return  {String}    style       style of the page
+             */
+
+            _setStyle: function(height) {
+                return sprintf('height: %dpx', height);
             },
             
             /**
